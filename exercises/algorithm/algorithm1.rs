@@ -2,7 +2,6 @@
     single linked list merge
     This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -71,20 +70,45 @@ where
     T: Ord,
 {
     pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self {
-        let length = list_a.length + list_b.length;
-        let mut start = None;
-        let mut end = None;
-
-        let node_a = list_a.start;
-        let node_b = list_b.start;
-        if node_a.is_none() {
+        if list_a.length == 0 {
             return list_b;
         }
-        if node_b.is_none() {
+        if list_b.length == 0 {
             return list_a;
         }
 
-        while let (Some(mut a), Some(mut b)) = () {}
+        let length = list_a.length + list_b.length;
+        let mut start = None;
+        let mut end = None;
+        let mut pa = list_a.start;
+        let mut pb = list_b.start;
+        if unsafe { &pa.unwrap().as_ref().val } < unsafe { &pb.unwrap().as_ref().val } {
+            start = pa;
+            pa = unsafe { (pa.unwrap().as_ref()).next };
+        } else {
+            start = pb;
+            pb = unsafe { (pb.unwrap().as_ref()).next };
+        }
+        end = start;
+        while let (Some(a), Some(b)) = (pa, pb) {
+            if unsafe { &a.as_ref().val } < unsafe { &b.as_ref().val } {
+                unsafe { end.unwrap().as_mut().next = pa };
+                end = pa;
+                pa = unsafe { pa.unwrap().as_ref().next };
+            } else {
+                unsafe { end.unwrap().as_mut().next = pb };
+                end = pb;
+                pb = unsafe { pb.unwrap().as_ref().next };
+            };
+        }
+        if pa.is_none() {
+            unsafe { end.unwrap().as_mut().next = pb };
+            end = list_b.end;
+        }
+        if pb.is_none() {
+            unsafe { end.unwrap().as_mut().next = pa };
+            end = list_a.end;
+        }
 
         Self { length, start, end }
     }
